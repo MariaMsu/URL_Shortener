@@ -1,0 +1,95 @@
+class VirtualNode:
+    def __int__(self, node_number: int, total_nodes_number: int,
+                duplicat_factor: int, node2address: dict,
+                data: dict):
+        self.node_number = node_number
+        self.total_nodes_number = total_nodes_number
+        self.duplicat_factor = duplicat_factor
+        self.node2address = node2address
+        self.unavailable_nodes = set()
+
+        # map short urls 2 long ones
+        # data may be not an empty dict if this VirtualNode instance is replacing an instance
+        # on the failed server
+        self.data = data
+
+    def set_new_node2address(self, node2address: dict):
+        # call this when ad a new server
+        self.node2address = node2address
+
+    def run_heartbeat(self):
+        while True:
+            for i in range(0, self.total_nodes_number):
+                if (i == self.node_number) or (i in self.unavailable_nodes):
+                    continue
+                response = send_and_receive_answer(node_addres=self.node2address[i], path="/heartbeat")
+                if response != "OK": # i.e. timeout expired in this case
+                    print(f"WARNING, the node {i} is unavailable")
+                    self.unavailable_nodes.add(i)
+
+            for i in self.unavailable_nodes:
+                response = send_and_receive_answer(node_addres=self.node2address[i], path="/heartbeat")
+                if response == "OK":  # i.e. timeout expired in this case
+                    print(f"INFO, the node {i} became available")
+                    self.unavailable_nodes.delete(i)
+
+            sleep(timout)
+
+    @RetMapping("/heartbeat")
+    def catch_heartbeat(self):
+        send_response(body="OK")  # send the response to the object, which called this method
+
+    @GetMapping("/set")
+    def set_long_url(self, long_url: str):
+        short_url = hash(long_url)
+        responsible_node = short_url % self.total_nodes_number
+        if responsible_node < self.node_number < responsible_node + self.duplicat_factor:
+            self.data[short_url] = long_url
+
+            # send the changes all ather responsible nodes
+            for i in range(responsible_node, responsible_node + self.duplicat_factor):
+                if (i == self.node_number) or (i in self.unavailable_nodes):
+                    continue
+                response = send_and_receive_answer(node_addres=self.node2address[i], path="/duplicate", body=long_url)
+                # if at least 1 node failed to store the new data, we respond with the FAILED code
+                if response != "OK":
+                    send_response(body="FAILED")  # send the response to the object, which called this method
+
+        else:
+            target_node = responsible_node + random(0, self.duplicat_factor)
+            response = send_and_receive_answer(node_addres=self.node2address[target_node], path="/set", body=long_url)
+            if response != "OK":
+                send_response(body="FAILED")  # send the response to the object, which called this method
+
+        # if all the responsible nodes stored the data, we send "OK" to the user
+        send_response(body="OK", body=short_url)  # send the response to the object, which called this method
+
+
+    @GetMapping("/duplicate")
+    def duplicate_long_url(self, long_url: str):
+        short_url = hash(long_url)
+        self.data[short_url] = long_url
+        send_response(body="OK")  # send the response to the object, which called this method
+
+    @GetMapping("/get")
+    def get_long_url(self, short_url: int):
+        responsible_node = short_url % self.total_nodes_number
+        if responsible_node < self.node_number < responsible_node + self.duplicat_factor:
+            long_url = self.data.get(short_url, "Not found")
+            send_response(body="OK", body=response["long_url"])
+            return
+
+        # go through the list of responsible nodes starting with a random one
+        random_value = random_int()
+        for i in range(0, self.duplicat_factor):
+            target_node = (i + random_value) % self.duplicat_factor + responsible_node
+            if target_node is in self.unavailable_nodes:
+                continue
+            response = send_and_receive_answer(node_addres=self.node2address[target_node], path="/get", body=short_url)
+            if response != "OK":
+                # send the response to the object, which called this method
+                send_response(body="OK", body=response["long_url"])
+                return
+
+        # all the node failed
+        send_response(body="FAILED", body=long_url)  # send the response to the object, which called this method
