@@ -1,4 +1,4 @@
-# URL_Shortener
+# url_shortener
 
 [Assignment](https://www.moodle.tum.de/pluginfile.php/4326211/mod_resource/content/1/Tutorial%209.pdf)
 
