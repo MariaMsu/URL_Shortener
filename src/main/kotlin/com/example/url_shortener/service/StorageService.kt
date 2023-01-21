@@ -22,6 +22,8 @@ class StorageService() {
         return input[0].code;
     }
 
-    private var data: MutableMap<Int, String> = mutableMapOf()
+    final var data: MutableMap<Int, String> = mutableMapOf()
+        private set // the setter is private and has the default implementation
+
 }
 

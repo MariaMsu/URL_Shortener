@@ -24,4 +24,10 @@ class ShortenerController {
         val result = storageService.getUrl(shortUrl)
         return ResponseEntity.ok(result);
     }
+
+    @GetMapping("/get-data")
+    fun getHelloWorld3(): ResponseEntity<String> {
+        val result = storageService.data;
+        return ResponseEntity.ok(result.toString());
+    }
 }
