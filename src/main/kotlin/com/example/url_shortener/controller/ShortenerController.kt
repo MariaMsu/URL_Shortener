@@ -14,19 +14,19 @@ class ShortenerController {
     lateinit var storageService: StorageService;
 
     @GetMapping("/set-long-url/{longUrl}")
-    fun getHelloWorld1(@PathVariable longUrl: String): ResponseEntity<String> {
+    fun setLongUrl(@PathVariable longUrl: String): ResponseEntity<String> {
         val result = storageService.setUrl(longUrl);
         return ResponseEntity.ok(result);
     }
 
-    @GetMapping("/get-short-url/{shortUrl}")
-    fun getHelloWorld2(@PathVariable shortUrl: String): ResponseEntity<String> {
+    @GetMapping("/{shortUrl}")
+    fun getShortUrl(@PathVariable shortUrl: String): ResponseEntity<String> {
         val result = storageService.getUrl(shortUrl)
         return ResponseEntity.ok(result);
     }
 
     @GetMapping("/get-data")
-    fun getHelloWorld3(): ResponseEntity<String> {
+    fun getData(): ResponseEntity<String> {
         val result = storageService.data;
         return ResponseEntity.ok(result.toString());
     }

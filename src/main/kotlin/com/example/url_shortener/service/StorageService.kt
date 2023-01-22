@@ -14,10 +14,10 @@ class StorageService() {
 
     public fun setUrl(longUrl: String): String? {
         var shortUrl: String;
-        for (seed in 0..10){
+        for (seed in 0..10) {
             // try to find a free spot for the new string
             shortUrl = md5(longUrl, seed.toByte());
-            if (!data.containsKey(shortUrl)){
+            if (!data.containsKey(shortUrl)) {
                 data[shortUrl] = longUrl
                 return shortUrl
             }
@@ -36,6 +36,4 @@ class StorageService() {
         private set // the setter is private and has the default implementation
 
     private val hasher = MessageDigest.getInstance("MD5")
-
 }
-
