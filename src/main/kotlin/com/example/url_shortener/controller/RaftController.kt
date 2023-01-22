@@ -10,15 +10,26 @@ import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 
+/**
+ * The raft controller is responsible for inbound communication.
+ *
+ * @property service The raft service handles all internal raft protocol state.
+ */
 @Controller
-class RaftController public constructor(val service: RaftService) {
-    @PostMapping("/heartbeat")
-    fun heartbeat(@RequestBody args: AppendEntryArgsDto): ResponseEntity<AppendEntryReplyDto> {
-        return ResponseEntity.ok(this.service.heartbeat(args))
+class RaftController constructor(val service: RaftService) {
+    /**
+     *
+     */
+    @PostMapping("/append-entries")
+    fun appendEntries(@RequestBody args: AppendEntryArgsDto): ResponseEntity<AppendEntryReplyDto> {
+        return ResponseEntity.ok(this.service.appendEntries(args))
     }
 
-    @PostMapping("/election")
-    fun callForElection(@RequestBody args: RequestVoteArgsDto): ResponseEntity<RequestVoteReplyDto> {
-        return ResponseEntity.ok(service.callForElection(args))
+    /**
+     *
+     */
+    @PostMapping("/request-vote")
+    fun requestVote(@RequestBody args: RequestVoteArgsDto): ResponseEntity<RequestVoteReplyDto> {
+        return ResponseEntity.ok(service.requestVote(args))
     }
 }

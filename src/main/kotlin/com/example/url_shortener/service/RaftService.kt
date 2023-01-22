@@ -6,19 +6,24 @@ import com.example.url_shortener.dto.RequestVoteArgsDto
 import com.example.url_shortener.dto.RequestVoteReplyDto
 import org.springframework.stereotype.Service
 
+/**
+ * This service is a wrapper around one of the three roles (Leader, Follower or Candidate)
+ * in the Raft protocol.
+ */
 @Service
-class RaftService {
-    //TODO: Schedule
+class RaftService : RaftProtocolHandler {
+    var role: RaftRole = RaftRole.FOLLOWER
 
-    fun timerExpired() {
-        // Call for a new election
-    }
+    @Synchronized
+    override fun appendEntries(appendEntryArgs: AppendEntryArgsDto) = role.appendEntries(appendEntryArgs)
 
-    fun heartbeat(args: AppendEntryArgsDto): AppendEntryReplyDto? {
-        return null
-    }
+    @Synchronized
+    override fun requestVote(requestVote: RequestVoteArgsDto) = role.requestVote(requestVote)
 
-    fun callForElection(args: RequestVoteArgsDto): RequestVoteReplyDto? {
-        return null
-    }
+    @Synchronized
+    override fun appendEntriesReply(appendEntryReply: AppendEntryReplyDto, from: String) =
+        role.appendEntriesReply(appendEntryReply, from)
+
+    @Synchronized
+    override fun requestVoteReply(requestVoteReply: RequestVoteReplyDto) = role.requestVoteReply(requestVoteReply)
 }
