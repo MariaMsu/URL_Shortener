@@ -16,7 +16,7 @@ class ShortenerController {
     @GetMapping("/set-long-url/{longUrl}")
     fun getHelloWorld1(@PathVariable longUrl: String): ResponseEntity<String> {
         val result = storageService.setUrl(longUrl);
-        return ResponseEntity.ok(result.toString());
+        return ResponseEntity.ok(result);
     }
 
     @GetMapping("/get-short-url/{shortUrl}")
