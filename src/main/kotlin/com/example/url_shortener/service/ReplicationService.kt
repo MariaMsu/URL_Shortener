@@ -13,16 +13,20 @@ import org.springframework.stereotype.Service
 class ReplicationService {
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    suspend fun replicateAcrossAllNodes(longUrl: String, nodeList: Array<String>) {
+    suspend fun replicateAcrossAllNodes(longUrl: String, nodeList: Array<String>): String {
+        var shortUrl: String = "";
         for (nodeAddress in nodeList) {
-            logger.info("is SENDING to $nodeAddress");
 
             val client = HttpClient(CIO)
-            val response: HttpResponse = client.get(nodeAddress)
+            val response: HttpResponse = client.get(nodeAddress) {
+                url {
+                    parameters.append("url", longUrl)
+                }
+            }
             client.close()
-
-            logger.info(response.status.toString());
+            logger.info("is SENDING to $nodeAddress, result=$response.status.toString()")
+            shortUrl = response.bodyAsText()
         }
-
+        return shortUrl
     }
 }
