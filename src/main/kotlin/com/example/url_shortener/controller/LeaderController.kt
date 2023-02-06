@@ -31,4 +31,9 @@ class LeaderController {
         val result = runBlocking{ replicationService.replicateAcrossAllNodes(longUrl, shortUrl, nodeAddresses);}
         return ResponseEntity.ok(result);
     }
+
+    @GetMapping("/delete-long-url")
+    fun deleteLongUrl(@RequestParam("url") longUrl: String): ResponseEntity<String> {
+        return ResponseEntity.ok("TODO not implementer yet");
+    }
 }
