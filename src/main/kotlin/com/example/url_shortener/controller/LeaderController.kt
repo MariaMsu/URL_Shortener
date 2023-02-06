@@ -1,7 +1,9 @@
 package com.example.url_shortener.controller
 
 import com.example.url_shortener.service.ReplicationService
+import com.example.url_shortener.service.StorageService
 import kotlinx.coroutines.runBlocking
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.GetMapping
@@ -11,10 +13,22 @@ import org.springframework.web.bind.annotation.RequestParam
 class LeaderController {
     var replicationService = ReplicationService();
 
-    val nodeAddresses = arrayOf("http://127.0.0.1:6001/node-set-long-url")  // TODO
+    @Autowired
+    lateinit var storageService: StorageService;
+
+
+    val nodeAddresses = arrayOf(
+        "http://127.0.0.1:6001/set-data",
+        "http://127.0.0.1:6002/set-data"
+    )  // TODO
+
     @GetMapping("/set-long-url")
     fun setLongUrl(@RequestParam("url") longUrl: String): ResponseEntity<String> {
-        val result = runBlocking{ replicationService.replicateAcrossAllNodes(longUrl, nodeAddresses);}
+        val shortUrl = storageService.setUrl(longUrl);
+        if (shortUrl == null){
+            return ResponseEntity.ok("Not ok")  // todo message
+        }
+        val result = runBlocking{ replicationService.replicateAcrossAllNodes(longUrl, shortUrl, nodeAddresses);}
         return ResponseEntity.ok(result);
     }
 }

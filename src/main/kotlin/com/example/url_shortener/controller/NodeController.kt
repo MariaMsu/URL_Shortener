@@ -18,9 +18,10 @@ class NodeController {
     private val logger = LoggerFactory.getLogger(javaClass)
 
 
-    @GetMapping("/node-set-long-url")
-    fun setLongUrl(@RequestParam("url") longUrl: String): ResponseEntity<String> {
-        logger.info("setLongUrl: $longUrl")
+    @GetMapping("/set-data")
+    fun setData(@RequestParam("long-url") longUrl: String,
+                @RequestParam("short-url") shortUrl: String): ResponseEntity<String> {
+        logger.info("setData: $longUrl")
         val result = storageService.setUrl(longUrl);
         return ResponseEntity.ok(result);
     }
