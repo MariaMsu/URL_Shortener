@@ -33,7 +33,7 @@ class RaftService : RaftProtocolHandler {
     }
 
     @Synchronized
-    override fun saveLongUrl(longUrl: String): String {
+    override fun setLongUrl(longUrl: String): String {
         if (role == RaftRole.LEADER) {
             val appendEntryArgs = storageService.leaderLogUrlAndComputeAEDto(longUrl = longUrl)
             for (port in TmpInfo().followerPorts) {
@@ -46,13 +46,24 @@ class RaftService : RaftProtocolHandler {
         }
     }
 
+    @Synchronized
+    override fun getLongUrl(shortUrl: String): String{
+        return storageService.getUrl(shortUrl=shortUrl)
+    }
+
+    @Synchronized
+    override fun getAllData(): MutableMap<String, String> {
+        return storageService.data
+    }
+
 
     @Synchronized
     override fun appendEntries(appendEntryArgs: AppendEntryArgsDto): Boolean {
         // theoretically, this function should not be called if role=Leader
         // but even if the leader called it, nothing should break
+        logger.info("$role received EA: \n${appendEntryArgs}\n")
         val result = storageService.logEntry(appendEntryArgs)
-        logger.info("$role updated log:\n${storageService.entryLog}\n")
+        logger.info("$role updated log ($result):\n${storageService.entryLog}\n")
         return result
     }
 

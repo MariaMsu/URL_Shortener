@@ -33,5 +33,9 @@ interface RaftProtocolHandler {
      */
     fun requestVoteReply(requestVoteReply: RequestVoteReplyDto)
 
-    fun saveLongUrl(longUrl: String): String
+    fun setLongUrl(longUrl: String): String
+
+    fun getLongUrl(shortUrl: String): String
+
+    fun getAllData(): MutableMap<String, String>
 }
