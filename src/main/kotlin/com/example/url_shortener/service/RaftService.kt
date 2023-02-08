@@ -13,6 +13,9 @@ import org.springframework.stereotype.Service
 class RaftService : RaftProtocolHandler {
 
     @Autowired
+    lateinit var storageService: StorageService
+
+    @Autowired
     lateinit var communicator: OutboundRaftCommunicationService;
 
     private val logger = LoggerFactory.getLogger(javaClass)
@@ -23,42 +26,34 @@ class RaftService : RaftProtocolHandler {
         // TODO remove it
         val strEnvVar: String = System.getenv("LEAD") ?: "0"
         val envVar: Int = strEnvVar.toInt()
-        if (envVar != 0){
+        if (envVar != 0) {
             role = RaftRole.LEADER
         }
         logger.info("ROLE is $role")
     }
 
+    @Synchronized
+    override fun saveLongUrl(longUrl: String): String {
+        if (role == RaftRole.LEADER) {
+            val appendEntryArgs = storageService.leaderLogUrlAndComputeAEDto(longUrl = longUrl)
+            for (port in TmpInfo().followerPorts) {
+                val address = "127.0.0.1:$port"
+                communicator.appendEntries(destination = address, entries = appendEntryArgs)
+            }
+            return appendEntryArgs.entry.shortUrl
+        } else {
+            TODO("not implemented, redirect to leader")
+        }
+    }
 
-    // We initialize the first Entry to simplify processing
-    val entryLog: MutableList<Entry> = mutableListOf(
-        Entry(0, "", "")
-    )
 
     @Synchronized
     override fun appendEntries(appendEntryArgs: AppendEntryArgsDto): Boolean {
-        // TODO it is a draft
-        if (role == RaftRole.FOLLOWER || role == RaftRole.CANDIDATE){
-            val lastEntry = entryLog.last()
-            val newEntry = appendEntryArgs.entry
-            if (newEntry.logIndex == lastEntry.logIndex + 1){
-                // todo other checks
-                entryLog.add(newEntry)
-                logger.info("$role updated log:\n$entryLog\n")
-                return true
-            }
-            return false
-        }
-
-        if (role == RaftRole.LEADER){
-            for (port in TmpInfo().followerPorts){
-                val address = "127.0.0.1:$port"
-                communicator.appendEntries(destination=address, entries = appendEntryArgs)
-            }
-            logger.info("LEADER: $role updated log:\n$entryLog\n")
-            return true
-        }
-        TODO("Not implemented? Idk how to handle this warning")
+        // theoretically, this function should not be called if role=Leader
+        // but even if the leader called it, nothing should break
+        val result = storageService.logEntry(appendEntryArgs)
+        logger.info("$role updated log:\n${storageService.entryLog}\n")
+        return result
     }
 
     @Synchronized
@@ -67,12 +62,12 @@ class RaftService : RaftProtocolHandler {
     }
 
     @Synchronized
-    override fun appendEntriesReply(appendEntryReply: AppendEntryReplyDto, from: String){
+    override fun appendEntriesReply(appendEntryReply: AppendEntryReplyDto, from: String) {
         TODO("Maria: not implemented")
     }
 
     @Synchronized
-    override fun requestVoteReply(requestVoteReply: RequestVoteReplyDto){
+    override fun requestVoteReply(requestVoteReply: RequestVoteReplyDto) {
         TODO("Maria: not implemented")
     }
 }

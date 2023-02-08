@@ -31,4 +31,9 @@ class RaftController constructor(val service: RaftService) {
     fun requestVote(@RequestBody args: RequestVoteArgsDto): ResponseEntity<RequestVoteReplyDto> {
         return ResponseEntity.ok(service.requestVote(args))
     }
+
+    @PostMapping("/set-long-url")
+    fun setLongUrl(@RequestBody longUrl: String): ResponseEntity<String> {
+        return ResponseEntity.ok(this.service.saveLongUrl(longUrl))
+    }
 }

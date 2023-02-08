@@ -7,7 +7,6 @@ import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.RequestParam
 
 @Controller
 class NodeController {
@@ -18,13 +17,13 @@ class NodeController {
     private val logger = LoggerFactory.getLogger(javaClass)
 
 
-    @GetMapping("/set-data")
-    fun setData(@RequestParam("long-url") longUrl: String,
-                @RequestParam("short-url") shortUrl: String): ResponseEntity<String> {
-        logger.info("setData: $longUrl")
-        val result = storageService.setUrl(longUrl);
-        return ResponseEntity.ok(result);
-    }
+//    @GetMapping("/set-data")
+//    fun setData(@RequestParam("long-url") longUrl: String,
+//                @RequestParam("short-url") shortUrl: String): ResponseEntity<String> {
+//        logger.info("setData: $longUrl")
+//        val result = storageService.setUrl(longUrl);
+//        return ResponseEntity.ok(result);
+//    }
 
     @GetMapping("/{shortUrl}")
     fun getShortUrl(@PathVariable shortUrl: String): ResponseEntity<String> {
