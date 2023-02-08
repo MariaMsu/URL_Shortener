@@ -1,7 +1,6 @@
 package com.example.url_shortener.controller
 
 import com.example.url_shortener.dto.AppendEntryArgsDto
-import com.example.url_shortener.dto.AppendEntryReplyDto
 import com.example.url_shortener.dto.RequestVoteArgsDto
 import com.example.url_shortener.dto.RequestVoteReplyDto
 import com.example.url_shortener.service.RaftService
@@ -21,7 +20,7 @@ class RaftController constructor(val service: RaftService) {
      *
      */
     @PostMapping("/append-entries")
-    fun appendEntries(@RequestBody args: AppendEntryArgsDto): ResponseEntity<AppendEntryReplyDto> {
+    fun appendEntries(@RequestBody args: AppendEntryArgsDto): ResponseEntity<Boolean> {
         return ResponseEntity.ok(this.service.appendEntries(args))
     }
 

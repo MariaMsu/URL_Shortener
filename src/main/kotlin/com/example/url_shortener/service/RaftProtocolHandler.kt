@@ -14,7 +14,7 @@ interface RaftProtocolHandler {
      * @param appendEntryArgs The message that was received.
      * @return The reply to the request.
      */
-    fun appendEntries(appendEntryArgs: AppendEntryArgsDto): AppendEntryReplyDto
+    fun appendEntries(appendEntryArgs: AppendEntryArgsDto): Boolean
 
     /**
      *

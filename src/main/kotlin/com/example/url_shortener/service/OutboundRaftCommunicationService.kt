@@ -1,7 +1,6 @@
 package com.example.url_shortener.service
 
 import com.example.url_shortener.dto.AppendEntryArgsDto
-import com.example.url_shortener.dto.AppendEntryReplyDto
 import com.example.url_shortener.dto.RequestVoteArgsDto
 import com.example.url_shortener.dto.RequestVoteReplyDto
 import org.springframework.core.task.TaskExecutor
@@ -17,8 +16,8 @@ import java.util.concurrent.TimeUnit
 class OutboundRaftCommunicationService(val taskExecutor: TaskExecutor) {
     val HEARTBEAT_TIMEOUT: Long = 2000
 
-    fun appendEntries(destination: String, entries: AppendEntryArgsDto): AppendEntryReplyDto {
-        return sendPost(destination, "/append-entries", entries, AppendEntryReplyDto::class.java)
+    fun appendEntries(destination: String, entries: AppendEntryArgsDto): Boolean {
+        return sendPost(destination, "/append-entries", entries, Boolean::class.java)
     }
 
     fun requestVote(destination: String, message: RequestVoteArgsDto): RequestVoteReplyDto {
